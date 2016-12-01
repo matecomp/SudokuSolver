@@ -4,16 +4,30 @@ from HillClimbing import *
 class AG(HC):
 
 	#Construtor
-	def __init__(self, cross_rate, mut_rate, hill_object):
+	def __init__(self, n_individuals, cross_rate, mut_rate, hill_object):
+		self.__n_individuals = n_individuals
 		self.__cross_rate = cross_rate
 		self.__mut_rate = mut_rate
 		self.__hc = hill_object
 		self.__individual = []
 		self.__DNA = []
 		self.__chromosome = []
+		self.population_generation(n_individuals)
+
+	def get_individual(self, idx=None):
+		if idx is None:
+			return self.__individual
+		return self.__individual[idx]
+
+	def get_individual(self, idx=None):
+		if idx is None:
+			return self.__chromosome
+		return self.__chromosome[idx]
 
 	def append_individual(self, individual):
 		self.__individual.append(individual)
+	def append_chromosome(self, chromosome):
+		self.__individual.append(chromosome)
 
 	def ind2chromo(self, individual):
 		dna = individual.get_dna()
@@ -51,4 +65,7 @@ class AG(HC):
 	def population_generation(self, n_individuals):
 		for ind in xrange(n_individuals):
 			individual = self.create_individual() 
-			self.append_ind(individual)
+			self.append_individual(individual)
+			chromosome = self.ind2chromo(individual)
+			self.append_chromosome(chromosome)
+
