@@ -18,15 +18,30 @@ class AG(HC):
 	def ind2chromo(self, individual):
 		dna = individual.get_dna()
 		board = individual.get_board()
+		rows, cols = individual.get_dimensions()
 		chromosome = []
 		for i, line in enumerate(board):
 			idxs = []
-			for j, element in enumerate(line):
+			for element in line:
 				basenit = np.where(dna[i,:]==element)[0][0]
 				dec = np.where(idxs < basenit)[0].shape[0]
 				idxs = np.append(idxs, basenit)
 				chromosome.append(basenit-dec)
+		chromosome = np.array(chromosome).reshape(rows,cols)
 		return chromosome
+	
+	def chromo2ind(self, individual, chromosome):
+		dna = individual.get_dna()
+		rows, cols = individual.get_dimensions()
+		board = []
+		for i, line in enumerate(chromosome):
+			for j, element in enumerate(line):
+				up = np.where(line[:j] <= element)[0].shape[0]
+				value = dna[i,element+up]
+				board.append(value)
+		board = np.array(board).reshape(rows,cols)
+		return board
+		
 	
 	def create_individual(self):
 		individual = self.__hc.create_board()

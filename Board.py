@@ -82,8 +82,8 @@ class Board:
 	def swap(self, coord1, coord2):
 		i1, j1 = coord1
 		i2, j2 = coord2
-		assert not(self.is_fixed(i1,j1) or self.is_fixed(i2,j2))
-		v1 = self.get_position(i1,j1)
-		v2 = self.get_position(i2,j2)
-		self.set_position(i1,j1,v2)
-		self.set_position(i2,j2,v1)
+		if not(self.is_fixed(i1,j1) or self.is_fixed(i2,j2)):
+			v1 = self.get_position(i1,j1)
+			v2 = self.get_position(i2,j2)
+			self.set_position(i1,j1,v2)
+			self.set_position(i2,j2,v1)
