@@ -60,7 +60,7 @@ class HC:
 		board.swap(coord1,coord2)
 		return board, self.score(board)
 
-	def count_errorline(self, board, trans=False):
+	def count_scoreline(self, board, trans=False):
 		b = board.get_board()
 		if trans:  b = b.T
 		score = 0
@@ -69,7 +69,7 @@ class HC:
 			score += np.count_nonzero(hist)
 		return score
 
-	def count_errorsquad(self, board):
+	def count_scoresquad(self, board):
 		score = 0 
 		rows, cols = board.get_dimensions()
 		b = board.get_board()
@@ -83,6 +83,6 @@ class HC:
 
 	#Here !! Board is a numpy array n_rows x n_cols dimensions
 	def score(self, board):
-		score1 = self.count_errorline(board, trans=True)
-		score2 = self.count_errorsquad(board)
+		score1 = self.count_scoreline(board, trans=True)
+		score2 = self.count_scoresquad(board)
 		return score1 + score2

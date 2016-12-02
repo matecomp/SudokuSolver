@@ -9,13 +9,13 @@ class Board:
 		self.__cols = n_cols
 		self.__score = 0
 		self.__board = np.zeros([n_rows,n_cols]).astype(int)
-		self.__dna = np.zeros([n_rows,n_cols]).astype(int)
 		self.__markeds = []
 		#insert value on board and mark this place
 		for i,j,n in markeds:
 			self.__board[i,j] = int(n)
-			self.__dna[i,j] = int(n)
 			self.__markeds.append((i,j))
+		n_marks = len(markeds)
+		self.__dna = np.zeros([n_rows*n_cols-n_marks]).astype(int)
 
 	def __str__(self):
 		return 'Board:\n{0}'.format(self.__board)
@@ -57,8 +57,15 @@ class Board:
 		for row in xrange(self.__rows):
 			for col in xrange(self.__cols):
 				value = random.randint(1,9)
-				if self.set_position(row,col,value):
-					self.__dna[row,col] = value
+				self.set_position(row,col,value)
+	
+	def create_dna(self):
+		count = 0
+		for i, line in enumerate(self.__board):
+			for j,  element in enumerate(line):
+				if not(self.is_fixed(i,j)):
+					self.__dna[count] = element
+					count += 1
 
 	def init_board(self):
 		self.fill_allpositions()
@@ -69,15 +76,14 @@ class Board:
 				zeros = np.zeros(10-len(hist)).astype(int)
 				hist = np.append(hist, zeros)
 			hist[0] = 10
-			
 			for j, element in enumerate(line):
 				if hist[element] > 1:
 					#Principio da casa dos pombos... existe um elemnto nao usado
 					new_element = np.argmin(hist)
 					if self.set_position(i,j,new_element):
-						self.__dna[i,j] = new_element
 						hist[element] -= 1
 						hist[new_element] += 1
+			self.create_dna()
 
 	def swap(self, coord1, coord2):
 		i1, j1 = coord1

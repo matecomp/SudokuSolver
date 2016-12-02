@@ -27,7 +27,7 @@ class AG(HC):
 			probs = scores*1.0/scores.sum()
 			idxs = np.random.choice(n_individuals,n_individuals,p=probs)
 			self.__individual = self.__individual[idxs]
-			self.__chromosome = self.__chromosome[idxs]
+#			self.__chromosome = self.__chromosome[idxs]
 			for idx in xrange(0,n_individuals,2):
 				ind1 = self.get_individual(idx)
 				ind2 = self.get_individual(idx+1)
@@ -42,15 +42,23 @@ class AG(HC):
 		rate = self.__cross_rate
 		rows, cols = ind1.get_dimensions()
 		size = int(rate * rows * cols)
-		chromosome1 = self.ind2chromo(ind1).flatten()
-		chromosome2 = self.ind2chromo(ind2).flatten()
-		cross_ind1 = np.append(chromosome1[:size],chromosome2[size:])
-		cross_ind1 = cross_ind1.reshape(rows,cols)
-		cross_ind2 = np.append(chromosome2[:size],chromosome1[size:])
-		cross_ind2 = cross_ind2.reshape(rows,cols)
-		new_ind1 = self.chromo2ind(ind1, cross_ind1)
-		new_ind2 = self.chromo2ind(ind2, cross_ind2)
-		return new_ind1, new_ind2
+		i1 = ind1.get_board()
+		i2 = ind2.get_board() 
+#		chromosome1 = self.ind2chromo(ind1).flatten()
+#		chromosome2 = self.ind2chromo(ind2).flatten()
+#		cross_ind1 = np.append(chromosome1[:size],chromosome2[size:])
+#		cross_ind1 = cross_ind1.reshape(rows,cols)
+#		cross_ind2 = np.append(chromosome2[:size],chromosome1[size:])
+#		cross_ind2 = cross_ind2.reshape(rows,cols)
+#		new_ind1 = self.chromo2ind(ind1, cross_ind1)
+#		new_ind2 = self.chromo2ind(ind2, cross_ind2)
+		b1 = np.append(i1[:rows/2,:],i2[rows/2:,:])
+		b2 = np.append(i1[rows/2:,:],i2[:rows/2,:])
+		b1 = b1.reshape(rows,cols)
+		b2 = b2.reshape(rows,cols)
+		ind1.set_board(b1)
+		ind2.set_board(b2)
+		return ind1, ind2
 
 
 
@@ -89,12 +97,13 @@ class AG(HC):
 		chromosome = []
 		for i, line in enumerate(board):
 			idxs = []
-			for element in line:
-				basenit = np.where(dna[i,:]==element)[0][0]
-				dec = np.where(idxs < basenit)[0].shape[0]
-				idxs = np.append(idxs, basenit)
-				chromosome.append(basenit-dec)
-		chromosome = np.array(chromosome).reshape(rows,cols)
+			for j, element in enumerate(line):
+				if not(individual.is_fixed(i,j)):
+					basenit = np.where(dna==element)[0][i]
+					dec = np.where(idxs < basenit)[0].shape[0]
+					idxs = np.append(idxs, basenit)
+					chromosome.append(basenit-dec)
+		chromosome = np.array(chromosome)
 		return chromosome
 	
 	def chromo2ind(self, individual, chromosome):
@@ -103,10 +112,13 @@ class AG(HC):
 		board = []
 		for i, line in enumerate(chromosome):
 			for j, element in enumerate(line):
-				up = np.where(line[:j] <= element)[0].shape[0]
-				# print element, up
-				value = dna[i,element+up]
-				board.append(value)
+				if not(individual.is_fixed(i,j)):
+					up = np.where(line[:j] <= element)[0].shape[0]
+					# print element, up
+					value = dna[i,element+up]
+					board.append(value)
+				else:
+					board.append(individual.get_position(i,j))
 		board = np.array(board).reshape(rows,cols)
 		individual.set_board(board) 
 		return individual
@@ -123,6 +135,6 @@ class AG(HC):
 		for ind in xrange(n_individuals):
 			individual = self.create_individual() 
 			self.append_individual(individual)
-			chromosome = self.ind2chromo(individual)
-			self.append_chromosome(chromosome)
+#			chromosome = self.ind2chromo(individual)
+#			self.append_chromosome(chromosome)
 
