@@ -4,7 +4,7 @@ from HillClimbing import *
 class AG(HC):
 
 	#Construtor
-	def __init__(self, n_individuals, cross_rate, mut_rate, hill_object):
+	def __init__(self, n_individuals, cross_rate, mut_rate, hill_object, roubar=True):
 		self.__n_individuals = n_individuals
 		self.__cross_rate = cross_rate
 		self.__mut_rate = mut_rate
@@ -13,6 +13,11 @@ class AG(HC):
 		self.__DNA = np.array([])
 		self.__chromosome = np.array([])
 		self.population_generation(n_individuals)
+		self.__roubar = roubar
+	
+	def softmax(self, x):
+		e_x = np.exp(x)/np.exp(x).sum()
+		return e_x
 
 	def train(self, iter=50):
 		individuals = self.get_individual()
@@ -22,23 +27,32 @@ class AG(HC):
 		for i in xrange(iter):
 			scores = np.array([])
 			for idx, ind in enumerate(individuals):
-				_, score = hc.climbing(ind)
+				if self.__roubar:
+					_, score = hc.climbing(ind)
+				else:
+					score = hc.score(ind)
 				scores = np.append(scores, score)
 			print "Generation:", i+1
 			print scores
-			probs = scores*1.0/scores.sum()
+			probs = self.softmax(scores*1.0)
 			sol = np.argmax(scores)
 			if scores[sol] == 162:
 				solution = self.get_individual(sol)
 			idxs = np.random.choice(n_individuals,n_individuals,p=probs)
 			self.__individual = self.__individual[idxs]
-#			self.__chromosome = self.__chromosome[idxs]
+
 			for idx in xrange(0,n_individuals,2):
+				if self.__cross_rate < random.random(): continue
 				ind1 = self.get_individual(idx)
 				ind2 = self.get_individual(idx+1)
 				ind1, ind2 = self.crossover(ind1, ind2)
 				self.set_individual(ind1, idx)
 				self.set_individual(ind2, idx+1)
+			for idx in xrange(0,n_individuals):
+				if self.__mut_rate < random.random(): continue
+				ind = self.get_individual(idx)
+				ind.random_swap()
+				self.set_individual(ind, idx)
 			# self.crossover()
 			# self.mutation()
 		if solution is not None:
@@ -47,19 +61,11 @@ class AG(HC):
 
 
 	def crossover(self, ind1, ind2):
-		rate = self.__cross_rate
+		rate = 0.5
 		rows, cols = ind1.get_dimensions()
 		cut = int(rate * rows)
 		i1 = ind1.get_board()
 		i2 = ind2.get_board() 
-#		chromosome1 = self.ind2chromo(ind1).flatten()
-#		chromosome2 = self.ind2chromo(ind2).flatten()
-#		cross_ind1 = np.append(chromosome1[:size],chromosome2[size:])
-#		cross_ind1 = cross_ind1.reshape(rows,cols)
-#		cross_ind2 = np.append(chromosome2[:size],chromosome1[size:])
-#		cross_ind2 = cross_ind2.reshape(rows,cols)
-#		new_ind1 = self.chromo2ind(ind1, cross_ind1)
-#		new_ind2 = self.chromo2ind(ind2, cross_ind2)
 		b1 = np.append(i1[:cut,:],i2[cut:,:])
 		b2 = np.append(i1[cut:,:],i2[:cut,:])
 		b1 = b1.reshape(rows,cols)

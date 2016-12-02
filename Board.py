@@ -93,3 +93,17 @@ class Board:
 			v2 = self.get_position(i2,j2)
 			self.set_position(i1,j1,v2)
 			self.set_position(i2,j2,v1)
+	
+	def random_swap(self):
+		dx = self.__rows - 1
+		dy = self.__cols - 1
+		i1 = random.randint(0,dx)
+		j1 = random.randint(0,dy)
+		i2 = random.randint(0,dx)
+		j2 = random.randint(0,dy)
+		while self.is_fixed(i1,j1) or self.is_fixed(i2,j2):
+			i1 = random.randint(0,dx)
+			j1 = random.randint(0,dy)
+			i2 = random.randint(0,dx)
+			j2 = random.randint(0,dy)
+		self.swap((i1,j1),(i2,j2))

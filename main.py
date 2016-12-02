@@ -10,9 +10,13 @@ markeds = [(1,0,1),(0,3,7),(2,3,4),(2,4,3),(2,6,2),(3,8,6),(4,3,5),(4,5,9),(5,6,
 #Cria o objeto hillclimbing que otimiza o tabuleiro 
 h = HC(n_rows,n_cols,markeds)
 #Cria o objeto algoritmo genetico (n_individuos, crossover_rate, mutation, hillclimbing.object)
-ag = AG(10,0.5,0.1,h)
+#Roubar utiliza hillclimbing + genetico, consegui encontrar solucao com AG(10,1.0,0.0,h,roubar=True)
+ag = AG(10,1.0,0.0,h,roubar=True)
 #Treina com o N geracoes
 #Caso nao encontre solucao, retorna None
-solution = ag.train(300)
+ag.train(10)
+ag.train(10)
+solution = ag.train(100)
+print solution
 #O objeto do algoritmo genetico possui os individuos otimizados
 #individuals = ag.get_individual()
