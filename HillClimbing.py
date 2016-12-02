@@ -54,7 +54,7 @@ class HC:
 					if self.score(board) >= temp_score:
 						coord1 = (i,j)
 						coord2 = (i,k)
-						big = self.score(board)
+						temp_score = self.score(board)
 					board.swap((i,j),(i,k))
 					
 		board.swap(coord1,coord2)

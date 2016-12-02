@@ -9,25 +9,58 @@ class AG(HC):
 		self.__cross_rate = cross_rate
 		self.__mut_rate = mut_rate
 		self.__hc = hill_object
-		self.__individual = []
-		self.__DNA = []
-		self.__chromosome = []
+		self.__individual = np.array([])
+		self.__DNA = np.array([])
+		self.__chromosome = np.array([])
 		self.population_generation(n_individuals)
+
+	def train(self, iter=50):
+		individuals = self.get_individual()
+		n_individuals = self.__n_individuals
+		hc = self.__hc
+		for i in xrange(iter):
+			scores = np.array([])
+			for idx, ind in enumerate(individuals):
+				_, score = hc.climbing(ind)
+				scores = np.append(scores, score)
+			probs = scores*1.0/scores.sum()
+			print  scores*1.0
+			idxs = np.random.choice(n_individuals,n_individuals,p=probs)
+			print idxs
+			self.__individual = self.__individual[idxs]
+			# self.crossover()
+			# self.mutation()
+
+
+	def crossover(self):
+		pass
+	def mutation(self):
+		pass
+
 
 	def get_individual(self, idx=None):
 		if idx is None:
 			return self.__individual
 		return self.__individual[idx]
 
-	def get_individual(self, idx=None):
+	def get_chromosome(self, idx=None):
 		if idx is None:
 			return self.__chromosome
 		return self.__chromosome[idx]
 
+	def set_individual(self, individual, idx):
+		self.__individual[idx] = individual
+
+	def set_choromosome(self, chromosome, idx):
+		self.__chromosome[idx] = chromosome
+
 	def append_individual(self, individual):
-		self.__individual.append(individual)
+		individuals = self.get_individual()
+		self.__individual = np.append(individuals,individual)
+
 	def append_chromosome(self, chromosome):
-		self.__individual.append(chromosome)
+		chromosomes = self.get_chromosome()
+		self.__chromosome = np.append(chromosomes, chromosome)
 
 	def ind2chromo(self, individual):
 		dna = individual.get_dna()
@@ -63,6 +96,8 @@ class AG(HC):
 		return individual
 
 	def population_generation(self, n_individuals):
+		self.__individual = np.array([])
+		self.__chromosome = np.array([])
 		for ind in xrange(n_individuals):
 			individual = self.create_individual() 
 			self.append_individual(individual)
