@@ -23,17 +23,37 @@ class AG(HC):
 			for idx, ind in enumerate(individuals):
 				_, score = hc.climbing(ind)
 				scores = np.append(scores, score)
+			print scores
 			probs = scores*1.0/scores.sum()
-			print  scores*1.0
 			idxs = np.random.choice(n_individuals,n_individuals,p=probs)
-			print idxs
 			self.__individual = self.__individual[idxs]
+			self.__chromosome = self.__chromosome[idxs]
+			for idx in xrange(0,n_individuals,2):
+				ind1 = self.get_individual(idx)
+				ind2 = self.get_individual(idx+1)
+				ind1, ind2 = self.crossover(ind1, ind2)
+				self.set_individual(ind1, idx)
+				self.set_individual(ind2, idx+1)
 			# self.crossover()
 			# self.mutation()
 
 
-	def crossover(self):
-		pass
+	def crossover(self, ind1, ind2):
+		rate = self.__cross_rate
+		rows, cols = ind1.get_dimensions()
+		size = int(rate * rows * cols)
+		chromosome1 = self.ind2chromo(ind1).flatten()
+		chromosome2 = self.ind2chromo(ind2).flatten()
+		cross_ind1 = np.append(chromosome1[:size],chromosome2[size:])
+		cross_ind1 = cross_ind1.reshape(rows,cols)
+		cross_ind2 = np.append(chromosome2[:size],chromosome1[size:])
+		cross_ind2 = cross_ind2.reshape(rows,cols)
+		new_ind1 = self.chromo2ind(ind1, cross_ind1)
+		new_ind2 = self.chromo2ind(ind2, cross_ind2)
+		return new_ind1, new_ind2
+
+
+
 	def mutation(self):
 		pass
 
@@ -84,10 +104,12 @@ class AG(HC):
 		for i, line in enumerate(chromosome):
 			for j, element in enumerate(line):
 				up = np.where(line[:j] <= element)[0].shape[0]
+				# print element, up
 				value = dna[i,element+up]
 				board.append(value)
 		board = np.array(board).reshape(rows,cols)
-		return board
+		individual.set_board(board) 
+		return individual
 		
 	
 	def create_individual(self):
