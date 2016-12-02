@@ -18,13 +18,18 @@ class AG(HC):
 		individuals = self.get_individual()
 		n_individuals = self.__n_individuals
 		hc = self.__hc
+		solution = None
 		for i in xrange(iter):
 			scores = np.array([])
 			for idx, ind in enumerate(individuals):
 				_, score = hc.climbing(ind)
 				scores = np.append(scores, score)
+			print "Generation:", i+1
 			print scores
 			probs = scores*1.0/scores.sum()
+			sol = np.argmax(scores)
+			if scores[sol] == 162:
+				solution = self.get_individual(sol)
 			idxs = np.random.choice(n_individuals,n_individuals,p=probs)
 			self.__individual = self.__individual[idxs]
 #			self.__chromosome = self.__chromosome[idxs]
@@ -36,12 +41,15 @@ class AG(HC):
 				self.set_individual(ind2, idx+1)
 			# self.crossover()
 			# self.mutation()
+		if solution is not None:
+			print "Solucao encontrada"
+		return solution
 
 
 	def crossover(self, ind1, ind2):
 		rate = self.__cross_rate
 		rows, cols = ind1.get_dimensions()
-		size = int(rate * rows * cols)
+		cut = int(rate * rows)
 		i1 = ind1.get_board()
 		i2 = ind2.get_board() 
 #		chromosome1 = self.ind2chromo(ind1).flatten()
@@ -52,8 +60,8 @@ class AG(HC):
 #		cross_ind2 = cross_ind2.reshape(rows,cols)
 #		new_ind1 = self.chromo2ind(ind1, cross_ind1)
 #		new_ind2 = self.chromo2ind(ind2, cross_ind2)
-		b1 = np.append(i1[:rows/2,:],i2[rows/2:,:])
-		b2 = np.append(i1[rows/2:,:],i2[:rows/2,:])
+		b1 = np.append(i1[:cut,:],i2[cut:,:])
+		b2 = np.append(i1[cut:,:],i2[:cut,:])
 		b1 = b1.reshape(rows,cols)
 		b2 = b2.reshape(rows,cols)
 		ind1.set_board(b1)
