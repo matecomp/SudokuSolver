@@ -97,13 +97,11 @@ class Board:
 	def random_swap(self):
 		dx = self.__rows - 1
 		dy = self.__cols - 1
-		i1 = random.randint(0,dx)
+		i = random.randint(0,dx)
 		j1 = random.randint(0,dy)
-		i2 = random.randint(0,dx)
 		j2 = random.randint(0,dy)
-		while self.is_fixed(i1,j1) or self.is_fixed(i2,j2):
-			i1 = random.randint(0,dx)
+		while self.is_fixed(i,j1) or self.is_fixed(i,j2):
+			i = random.randint(0,dx)
 			j1 = random.randint(0,dy)
-			i2 = random.randint(0,dx)
 			j2 = random.randint(0,dy)
-		self.swap((i1,j1),(i2,j2))
+		self.swap((i,j1),(i,j2))

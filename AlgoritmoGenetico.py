@@ -1,10 +1,11 @@
 import numpy as np
+import copy
 from HillClimbing import *
 
 class AG(HC):
 
 	#Construtor
-	def __init__(self, n_individuals, cross_rate, mut_rate, hill_object, roubar=True):
+	def __init__(self, n_individuals, cross_rate, mut_rate, hill_object, elitism=0, roubar=True):
 		self.__n_individuals = n_individuals
 		self.__cross_rate = cross_rate
 		self.__mut_rate = mut_rate
@@ -13,6 +14,7 @@ class AG(HC):
 		self.__DNA = np.array([])
 		self.__chromosome = np.array([])
 		self.population_generation(n_individuals)
+		self.__elitism = elitism
 		self.__roubar = roubar
 	
 	def softmax(self, x):
@@ -23,7 +25,9 @@ class AG(HC):
 		individuals = self.get_individual()
 		n_individuals = self.__n_individuals
 		hc = self.__hc
+		elitism = self.__elitism
 		solution = None
+		maximum = 0
 		for i in xrange(iter):
 			scores = np.array([])
 			for idx, ind in enumerate(individuals):
@@ -35,10 +39,17 @@ class AG(HC):
 			print "Generation:", i+1
 			print scores
 			probs = self.softmax(scores*1.0)
+			if elitism > 0:
+				sols = np.argsort(scores)[-elitism:]
+			else:
+				sols = []
+			
 			sol = np.argmax(scores)
-			if scores[sol] == 162:
-				solution = self.get_individual(sol)
-			idxs = np.random.choice(n_individuals,n_individuals,p=probs)
+			if scores[sol] >= maximum:
+				solution = copy.copy(self.__individual[sol])
+				maximum = scores[sol]
+			idxs = np.random.choice(n_individuals,n_individuals-elitism,p=probs)
+			idxs = np.append(sols,idxs).astype(int)
 			self.__individual = self.__individual[idxs]
 
 			for idx in xrange(0,n_individuals,2):
@@ -48,6 +59,8 @@ class AG(HC):
 				ind1, ind2 = self.crossover(ind1, ind2)
 				self.set_individual(ind1, idx)
 				self.set_individual(ind2, idx+1)
+
+			np.random.shuffle(self.__individual)
 			for idx in xrange(0,n_individuals):
 				if self.__mut_rate < random.random(): continue
 				ind = self.get_individual(idx)
@@ -55,19 +68,18 @@ class AG(HC):
 				self.set_individual(ind, idx)
 			# self.crossover()
 			# self.mutation()
-		if solution is not None:
-			print "Solucao encontrada"
+		print maximum
 		return solution
 
 
 	def crossover(self, ind1, ind2):
-		rate = 0.5
+		rate = random.random()
 		rows, cols = ind1.get_dimensions()
 		cut = int(rate * rows)
 		i1 = ind1.get_board()
 		i2 = ind2.get_board() 
 		b1 = np.append(i1[:cut,:],i2[cut:,:])
-		b2 = np.append(i1[cut:,:],i2[:cut,:])
+		b2 = np.append(i2[:cut,:],i1[cut:,:])
 		b1 = b1.reshape(rows,cols)
 		b2 = b2.reshape(rows,cols)
 		ind1.set_board(b1)
