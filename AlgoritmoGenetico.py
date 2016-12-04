@@ -36,9 +36,11 @@ class AG(HC):
 				else:
 					score = hc.score(ind)
 				scores = np.append(scores, score)
+			probs = scores/scores.sum()
+			# probs = self.softmax(scores*1.0)
 			print "Generation:", i+1
 			print scores
-			probs = self.softmax(scores*1.0)
+			print probs.sum()
 			if elitism > 0:
 				sols = np.argsort(scores)[-elitism:]
 			else:
@@ -50,8 +52,10 @@ class AG(HC):
 				maximum = scores[sol]
 			idxs = np.random.choice(n_individuals,n_individuals-elitism,p=probs)
 			idxs = np.append(sols,idxs).astype(int)
+			print idxs.shape
 			self.__individual = self.__individual[idxs]
 
+			np.random.shuffle(self.__individual)
 			for idx in xrange(0,n_individuals,2):
 				if self.__cross_rate < random.random(): continue
 				ind1 = self.get_individual(idx)
@@ -59,13 +63,14 @@ class AG(HC):
 				ind1, ind2 = self.crossover(ind1, ind2)
 				self.set_individual(ind1, idx)
 				self.set_individual(ind2, idx+1)
+				ind1 = self.get_individual(idx)
 
 			np.random.shuffle(self.__individual)
 			for idx in xrange(0,n_individuals):
 				if self.__mut_rate < random.random(): continue
 				ind = self.get_individual(idx)
-				ind.random_swap()
-				self.set_individual(ind, idx)
+				for i in xrange(20):
+					ind.random_swap()
 			# self.crossover()
 			# self.mutation()
 		print maximum
@@ -85,11 +90,6 @@ class AG(HC):
 		ind1.set_board(b1)
 		ind2.set_board(b2)
 		return ind1, ind2
-
-
-
-	def mutation(self):
-		pass
 
 
 	def get_individual(self, idx=None):

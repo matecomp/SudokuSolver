@@ -12,12 +12,10 @@ h = HC(n_rows,n_cols,markeds)
 #Cria o objeto algoritmo genetico (n_individuos, crossover_rate, mutation, hillclimbing.object, elitism_number, roubar_flag)
 #Roubar utiliza hillclimbing + genetico, com roubar=True, utilize um n_individuos pequeno
 #Utilizar n_individuos par
-ag = AG(10,0.8,0.5,h,elitism=2,roubar=True)
+ag = AG(10,0.99,1.0,h,elitism=4,roubar=False)
 #Treina com o N geracoes
 #Caso nao encontre solucao, retorna None
-ag.train(10)
-ag.train(10)
-solution = ag.train(100)
+solution = ag.train(1000)
 print solution
 print "pontuacao linha:",h.count_scoreline(solution)
 print "pontuacao coluna:",h.count_scoreline(solution, trans=True)
